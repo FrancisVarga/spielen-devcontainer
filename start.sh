@@ -3,5 +3,6 @@
 # Start SSH service
 service ssh start
 
-# Switch to developer user and start bash
-exec su - developer
+# Keep the container running indefinitely
+# This allows SSH access while keeping the container alive in detached mode
+exec tail -f /dev/null
