@@ -37,7 +37,19 @@ jobs:
 
       - name: Test Docker image
         run: |
-          # Test that the image runs successfully
+          # Test that the container starts and stays running in detached mode
+          CONTAINER_ID=$(docker run -d devenv:test)
+          sleep 5
+          if docker ps | grep -q $CONTAINER_ID; then
+            echo "✅ Container is running successfully in detached mode"
+            docker stop $CONTAINER_ID
+          else
+            echo "❌ Container failed to stay running in detached mode"
+            docker logs $CONTAINER_ID
+            exit 1
+          fi
+          
+          # Test that the image runs successfully in interactive mode
           docker run --rm devenv:test /bin/bash -c "echo 'Container started successfully'"
           
           # Test that essential tools are installed
@@ -92,9 +104,3 @@ jobs:
           image-ref: 'devenv:test'
           format: 'sarif'
           output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
