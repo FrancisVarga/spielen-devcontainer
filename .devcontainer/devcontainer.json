@@ -1,0 +1,74 @@
+{
+  "name": "Developer Environment",
+  "image": "ghcr.io/your_username/your_repo_name:latest",
+  
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {},
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  "forwardPorts": [3000, 3001, 4000, 5000, 8000, 8080, 8888, 9000],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "echo 'Welcome to your development environment! 🚀'",
+
+  // Configure tool-specific properties.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-python.black-formatter",
+        "ms-python.mypy-type-checker",
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "rust-lang.rust-analyzer",
+        "golang.go",
+        "ms-vscode.docker",
+        "github.vscode-github-actions",
+        "github.copilot",
+        "ms-vscode.remote-containers"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/home/developer/.pyenv/shims/python",
+        "python.terminal.activateEnvironment": true,
+        "python.formatting.provider": "black",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "javascript.preferences.includePackageJsonAutoImports": "auto",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "args": ["-l"]
+          }
+        }
+      }
+    }
+  },
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "developer",
+
+  // Mount the workspace and Docker socket
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+
+  // Set environment variables
+  "containerEnv": {
+    "WORKSPACE": "${containerWorkspaceFolder}"
+  },
+
+  // Lifecycle scripts
+  "initializeCommand": "echo 'Initializing development environment...'",
+  "onCreateCommand": "echo 'Container created successfully!'",
+  "updateContentCommand": "echo 'Updating content...'",
+  "postStartCommand": "echo 'Container started! Happy coding! 🎉'"
+}

@@ -1,0 +1,100 @@
+name: Docker Build and Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'install-dev-tools.sh'
+      - 'setup-shell.sh'
+      - 'setup-ssh-keys.sh'
+      - 'start.sh'
+      - '.dockerignore'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: devenv:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          # Test that the image runs successfully
+          docker run --rm devenv:test /bin/bash -c "echo 'Container started successfully'"
+          
+          # Test that essential tools are installed
+          echo "Testing essential tools..."
+          docker run --rm devenv:test /bin/bash -c "which git && which curl && which vim"
+          
+          # Test that pyenv is installed and working
+          echo "Testing pyenv..."
+          docker run --rm devenv:test /bin/bash -c "source ~/.bashrc && pyenv --version"
+          
+          # Test that nvm is installed and working
+          echo "Testing nvm..."
+          docker run --rm devenv:test /bin/bash -c "source ~/.bashrc && nvm --version"
+          
+          # Test that Python is available
+          echo "Testing Python..."
+          docker run --rm devenv:test /bin/bash -c "source ~/.bashrc && python3 --version"
+          
+          # Test that Node.js tools are available
+          echo "Testing Node.js..."
+          docker run --rm devenv:test /bin/bash -c "source ~/.bashrc && node --version || echo 'Node.js not in PATH, but nvm is available'"
+          
+          # Test that the developer user exists and has sudo access
+          echo "Testing user permissions..."
+          docker run --rm devenv:test /bin/bash -c "whoami && sudo whoami"
+          
+          # Test workspace directory
+          echo "Testing workspace directory..."
+          docker run --rm devenv:test /bin/bash -c "ls -la /home/developer/workspace"
+
+      - name: Test Docker Compose
+        run: |
+          # Test that docker-compose builds successfully
+          docker-compose build
+          
+          # Test that the service can start
+          docker-compose up -d
+          sleep 10
+          
+          # Test that the container is running
+          docker-compose ps
+          
+          # Test that we can exec into the container
+          docker-compose exec -T devenv /bin/bash -c "echo 'Docker Compose test successful'"
+          
+          # Clean up
+          docker-compose down
+
+      - name: Security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'devenv:test'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'

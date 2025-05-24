@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  devenv:
+    build: .
+    container_name: developer-environment
+    volumes:
+      # Mount your local workspace to the container
+      - ./workspace:/home/developer/workspace
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persist shell history and configurations
+      - devenv-home:/home/developer
+    ports:
+      # Common development ports
+      - "3000:3000"   # React/Next.js
+      - "3001:3001"   # Alternative React port
+      - "4000:4000"   # GraphQL/Apollo
+      - "5000:5000"   # Flask/Express
+      - "8000:8000"   # Django/FastAPI
+      - "8080:8080"   # Alternative web server
+      - "8888:8888"   # Jupyter Notebook
+      - "9000:9000"   # Additional service port
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+    stdin_open: true
+    tty: true
+    # Keep container running
+    command: tail -f /dev/null
+
+volumes:
+  devenv-home:
+    driver: local

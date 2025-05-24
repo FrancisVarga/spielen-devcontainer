@@ -1,0 +1,23 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "developer-environment",
+      "changelog-sections": [
+        {"type": "feat", "section": "Features"},
+        {"type": "fix", "section": "Bug Fixes"},
+        {"type": "chore", "section": "Miscellaneous"},
+        {"type": "docs", "section": "Documentation"},
+        {"type": "style", "section": "Styles"},
+        {"type": "refactor", "section": "Code Refactoring"},
+        {"type": "perf", "section": "Performance Improvements"},
+        {"type": "test", "section": "Tests"},
+        {"type": "build", "section": "Build System"},
+        {"type": "ci", "section": "Continuous Integration"}
+      ]
+    }
+  },
+  "bootstrap-sha": "main",
+  "release-search-depth": 500,
+  "commit-search-depth": 500
+}
