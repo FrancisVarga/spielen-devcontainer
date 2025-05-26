@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0](https://github.com/FrancisVarga/spielen-devcontainer/compare/developer-environment-v0.4.0...developer-environment-v0.5.0) (2025-05-26)
+
+
+### Features
+
+* Add runtime SSH key setup script and update Dockerfile for SSH configuration ([6edb11a](https://github.com/FrancisVarga/spielen-devcontainer/commit/6edb11a4e9c6e2bcc21af8a986beedb516d3a8a3))
+* Enhance container startup script with improved SSH daemon handling and error reporting ([c32e5f5](https://github.com/FrancisVarga/spielen-devcontainer/commit/c32e5f55afe18b15d4a1a89316a757f474879661))
+* Improve container startup and SSH service configuration ([64f5cc1](https://github.com/FrancisVarga/spielen-devcontainer/commit/64f5cc1d8607fb9b3fa48b4842ba587d3209e3ae))
+* Integrate pyenv and nvm into Docker build and simplify dev tools setup ([1966be8](https://github.com/FrancisVarga/spielen-devcontainer/commit/1966be800e2ee75b621f0db5ca07321d1c446d34))
+* Move pyenv dependencies installation earlier in Dockerfile ([ff62a98](https://github.com/FrancisVarga/spielen-devcontainer/commit/ff62a98b493fcad33a2bf97e3e9fa0a0f5472194))
+* Update release-please workflow: upgrade actions and simplify config ([58c36e1](https://github.com/FrancisVarga/spielen-devcontainer/commit/58c36e1efb2846d8f78b7ab3b332b2055af36154))
+
+
+### Bug Fixes
+
+* Comment out Docker image testing steps in workflow ([6a3e06c](https://github.com/FrancisVarga/spielen-devcontainer/commit/6a3e06cd93f1585ca2ae4542de7a81b52f7ae770))
+* Improve SSH daemon startup handling and error reporting in container initialization script ([327eea7](https://github.com/FrancisVarga/spielen-devcontainer/commit/327eea7a4b18a4a6560994506720686ea08e1237))
+* release and add caching ([e9731d8](https://github.com/FrancisVarga/spielen-devcontainer/commit/e9731d84d5edc3f5826eea97b3191d581a7a7b19))
+* Restore and enhance Docker image testing steps in workflow ([02b8812](https://github.com/FrancisVarga/spielen-devcontainer/commit/02b8812090a44eafdc20e66c6e072bbc4f403552))
+
 ## [0.4.0](https://github.com/FrancisVarga/spielen-devcontainer/compare/developer-environment-v0.3.0...developer-environment-v0.4.0) (2025-05-26)
 
 
