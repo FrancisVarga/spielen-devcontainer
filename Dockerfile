@@ -40,7 +40,7 @@ RUN apk add --no-cache \
     tar \
     gzip
 
-RUN apt-get update && apt-get install -y coreutils sed
+RUN apk update && apk add --no-cache coreutils sed
 
 # Create developer user and configure SSH
 RUN adduser -D -s /bin/bash $USER && \
