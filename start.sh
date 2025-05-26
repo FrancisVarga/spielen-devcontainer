@@ -8,6 +8,12 @@ fi
 # Create /var/run/sshd directory if it doesn't exist
 mkdir -p /var/run/sshd
 
+# Set up SSH keys for the developer user (if script exists)
+if [ -f /setup-ssh-keys-runtime.sh ]; then
+    echo "Setting up SSH keys..."
+    /setup-ssh-keys-runtime.sh
+fi
+
 # Start SSH service in daemon mode (non-blocking)
 /usr/sbin/sshd
 

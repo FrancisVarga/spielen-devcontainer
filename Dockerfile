@@ -132,7 +132,7 @@ RUN git config --global init.defaultBranch main && \
     git config --global core.editor vim && \
     mkdir -p ~/.ssh ~/.cache ~/.local/bin ~/workspace && \
     chmod 700 ~/.ssh && \
-    curl -s https://api.github.com/users/FrancisVarga/keys | jq -r '.[].key' > ~/.ssh/authorized_keys 2>/dev/null || echo "# Add your SSH keys here" > ~/.ssh/authorized_keys && \
+    echo "# SSH keys will be configured at runtime" > ~/.ssh/authorized_keys && \
     chmod 600 ~/.ssh/authorized_keys
 
 # Clean up to reduce image size
@@ -148,10 +148,14 @@ WORKDIR /home/$USER/workspace
 # Expose essential ports only
 EXPOSE 22 3000 8000
 
-# Copy startup script and make it executable
+# Copy startup scripts and make them executable
 USER root
 COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY setup-ssh-keys-runtime.sh /setup-ssh-keys-runtime.sh
+
+# Fix line endings and make scripts executable
+RUN sed -i 's/\r$//' /start.sh /setup-ssh-keys-runtime.sh && \
+    chmod +x /start.sh /setup-ssh-keys-runtime.sh
 
 # Add health check for SSH service
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
