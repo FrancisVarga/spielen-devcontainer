@@ -41,6 +41,7 @@ RUN apk add --no-cache \
     gzip
 
 RUN apk update && apk add --no-cache coreutils sed
+RUN apk add --no-cache make gcc zlib-dev bzip2 bzip2-dev readline-dev sqlite sqlite-dev openssl-dev xz xz-dev tk tk-dev
 
 # Create developer user and configure SSH
 RUN adduser -D -s /bin/bash $USER && \
@@ -78,7 +79,6 @@ FROM python-env AS node-env
 RUN npm config set prefix ~/.local
 
 # Install pyenv dependencies and pyenv itself
-RUN apk add --no-cache make gcc zlib-dev bzip2 bzip2-dev readline-dev sqlite sqlite-dev openssl-dev xz xz-dev tk tk-dev
 RUN curl https://pyenv.run | bash
 
 # Install nvm
