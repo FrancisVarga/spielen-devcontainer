@@ -77,6 +77,20 @@ FROM python-env AS node-env
 # Configure npm to install packages locally for the user
 RUN npm config set prefix ~/.local
 
+# Install pyenv dependencies and pyenv itself
+RUN apk add --no-cache make gcc zlib-dev bzip2 bzip2-dev readline-dev sqlite sqlite-dev openssl-dev xz xz-dev tk tk-dev
+RUN curl https://pyenv.run | bash
+
+# Install nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+# Update PATH for pyenv and nvm
+ENV PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$HOME/.nvm:$PATH"
+RUN echo 'export PATH="$HOME/.pyenv/bin:$HOME/.pyenv/shims:$HOME/.nvm:$PATH"' >> ~/.bashrc
+RUN echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
+RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
+RUN echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
+
 # Install essential Node.js packages only (removed heavy ones like pm2, pnpm)
 RUN --mount=type=cache,target=/home/$USER/.npm,uid=1000,gid=1000 \
     npm install -g \
