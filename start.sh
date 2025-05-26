@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit on any error for debugging
-set -e
-
 echo "Starting container initialization..."
 
 # Ensure SSH host keys exist
@@ -22,16 +19,16 @@ fi
 
 # Start SSH service in daemon mode (non-blocking)
 echo "Starting SSH daemon..."
-if /usr/sbin/sshd -D &
-then
-    echo "SSH daemon started successfully"
-    SSH_PID=$!
-else
-    echo "Failed to start SSH daemon"
-    exit 1
-fi
+/usr/sbin/sshd
 
+echo "SSH daemon started successfully"
 echo "Container initialization complete. Container will stay running..."
 
-# Keep the container running by waiting for the SSH daemon
-wait $SSH_PID
+# Keep the container running with an infinite loop that checks SSH daemon
+while true; do
+    if ! pgrep sshd > /dev/null; then
+        echo "SSH daemon stopped, restarting..."
+        /usr/sbin/sshd
+    fi
+    sleep 30
+done
