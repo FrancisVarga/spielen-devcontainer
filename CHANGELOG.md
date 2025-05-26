@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0](https://github.com/FrancisVarga/spielen-devcontainer/compare/developer-environment-v0.5.0...developer-environment-v0.6.0) (2025-05-26)
+
+
+### Features
+
+* Optimize Docker build process and add comprehensive testing script for environments ([f4bd04d](https://github.com/FrancisVarga/spielen-devcontainer/commit/f4bd04dacfd63c1a25a71c0ddcceb69544a528ec))
+
+
+### Code Refactoring
+
+* Remove parallel Docker Compose testing steps from workflow ([a3fc65c](https://github.com/FrancisVarga/spielen-devcontainer/commit/a3fc65cf25e13ef00aabd457057ef83ca2d64960))
+
 ## [0.5.0](https://github.com/FrancisVarga/spielen-devcontainer/compare/developer-environment-v0.4.0...developer-environment-v0.5.0) (2025-05-26)
 
 
