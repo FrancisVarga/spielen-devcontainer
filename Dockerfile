@@ -2,6 +2,7 @@
 
 # Build arguments for performance optimization
 ARG BUILDKIT_INLINE_CACHE=1
+ARG BUILDKIT_CACHE_MOUNT_NS=spielen-devcontainer
 
 # Stage 1: Base system with minimal dependencies
 FROM alpine:3.19 AS base
@@ -18,7 +19,8 @@ ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Install essential system packages only
-RUN apk add --no-cache \
+RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
+    apk add --no-cache \
     bash \
     curl \
     git \
@@ -40,8 +42,11 @@ RUN apk add --no-cache \
     tar \
     gzip
 
-RUN apk update && apk add --no-cache coreutils sed
-RUN apk add --no-cache make gcc zlib-dev bzip2 bzip2-dev readline-dev sqlite sqlite-dev openssl-dev xz xz-dev tk tk-dev
+RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
+    apk update && apk add --no-cache coreutils sed
+
+RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
+    apk add --no-cache make gcc zlib-dev bzip2 bzip2-dev readline-dev sqlite sqlite-dev openssl-dev xz xz-dev tk tk-dev
 
 # Create developer user and configure SSH
 RUN adduser -D -s /bin/bash $USER && \
