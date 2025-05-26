@@ -1,7 +1,13 @@
 #!/bin/bash
 
+# Exit on any error for debugging
+set -e
+
+echo "Starting container initialization..."
+
 # Ensure SSH host keys exist
 if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+    echo "Generating SSH host keys..."
     ssh-keygen -A
 fi
 
@@ -15,8 +21,17 @@ if [ -f /setup-ssh-keys-runtime.sh ]; then
 fi
 
 # Start SSH service in daemon mode (non-blocking)
-/usr/sbin/sshd
+echo "Starting SSH daemon..."
+if /usr/sbin/sshd -D &
+then
+    echo "SSH daemon started successfully"
+    SSH_PID=$!
+else
+    echo "Failed to start SSH daemon"
+    exit 1
+fi
 
-# Keep the container running by tailing a log file or sleeping
-# This ensures the container stays alive in detached mode
-tail -f /dev/null
+echo "Container initialization complete. Container will stay running..."
+
+# Keep the container running by waiting for the SSH daemon
+wait $SSH_PID
