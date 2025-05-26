@@ -1,5 +1,4 @@
 name: Release Please
-
 on:
   push:
     branches:
@@ -17,37 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
-      - name: Install dependencies
-        run: npm install
+          node-version: '18'
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          # IMPORTANT: Use a PAT with 'repo' and 'workflow' scopes for PR creation/approval
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-      - name: Auto-merge pull request
-        if: github.event_name == 'pull_request' && github.event.pull_request.mergeable == true
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { data: pullRequest } = await github.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
-            });
-
-            if (pullRequest.mergeable) {
-              await github.pulls.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
-                merge_method: 'merge'
-              });
-            }
+          token: ${{ secrets.GITHUB_TOKEN }}
