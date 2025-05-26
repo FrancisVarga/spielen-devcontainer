@@ -39,7 +39,7 @@ Host github.com
 # Default configuration for all hosts
 Host *
     AddKeysToAgent yes
-    UseKeychain yes
+    
     IdentitiesOnly yes
 SSHEOF
 
