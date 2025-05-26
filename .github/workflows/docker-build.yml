@@ -29,15 +29,7 @@ jobs:
           driver-opts: |
             network=host
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Build Docker image
+      - name: Build Docker image with optimized cache
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -45,19 +37,12 @@ jobs:
           tags: devenv:test
           platforms: linux/amd64
           cache-from: |
-            type=gha
-            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=buildkit
           cache-to: |
-            type=gha,mode=max
-            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,mode=max,scope=buildkit
           build-args: |
             BUILDKIT_INLINE_CACHE=1
             BUILDKIT_CACHE_MOUNT_NS=spielen-devcontainer
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Test Docker image
         run: |
@@ -119,9 +104,109 @@ jobs:
           # Clean up
           docker-compose down
 
+      - name: Test Docker Compose Parallel Runs
+        run: |
+          echo "Testing parallel Docker Compose instances..."
+          
+          # Create multiple compose files for parallel testing
+          cp docker-compose.yml docker-compose.test1.yml
+          cp docker-compose.yml docker-compose.test2.yml
+          
+          # Modify ports to avoid conflicts
+          sed -i 's/3000:3000/3010:3000/' docker-compose.test1.yml
+          sed -i 's/3001:3001/3011:3001/' docker-compose.test1.yml
+          sed -i 's/developer-environment/developer-environment-1/' docker-compose.test1.yml
+          
+          sed -i 's/3000:3000/3020:3000/' docker-compose.test2.yml
+          sed -i 's/3001:3001/3021:3001/' docker-compose.test2.yml
+          sed -i 's/developer-environment/developer-environment-2/' docker-compose.test2.yml
+          
+          # Start both instances in parallel
+          echo "Starting parallel instances..."
+          docker-compose -f docker-compose.test1.yml up -d &
+          PID1=$!
+          docker-compose -f docker-compose.test2.yml up -d &
+          PID2=$!
+          
+          # Wait for both to start
+          wait $PID1
+          wait $PID2
+          sleep 15
+          
+          # Test both instances
+          echo "Testing instance 1..."
+          docker-compose -f docker-compose.test1.yml ps
+          docker-compose -f docker-compose.test1.yml exec -T devenv /bin/bash -c "echo 'Parallel test 1 successful'"
+          
+          echo "Testing instance 2..."
+          docker-compose -f docker-compose.test2.yml ps
+          docker-compose -f docker-compose.test2.yml exec -T devenv /bin/bash -c "echo 'Parallel test 2 successful'"
+          
+          # Clean up both instances
+          echo "Cleaning up parallel instances..."
+          docker-compose -f docker-compose.test1.yml down &
+          docker-compose -f docker-compose.test2.yml down &
+          wait
+          
+          # Remove test files
+          rm docker-compose.test1.yml docker-compose.test2.yml
+          
+          echo "✅ Parallel Docker Compose test completed successfully"
+
       - name: Security scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'devenv:test'
           format: 'sarif'
           output: 'trivy-results.sarif'
+
+  auto-merge:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]' || github.actor == 'github-actions[bot]' || contains(github.event.pull_request.labels.*.name, 'auto-merge')
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for merge conflicts
+        id: conflict-check
+        run: |
+          # Fetch the latest changes
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          
+          # Check if there are any merge conflicts
+          if git merge-tree $(git merge-base HEAD origin/${{ github.event.pull_request.base.ref }}) HEAD origin/${{ github.event.pull_request.base.ref }} | grep -q "<<<<<<< "; then
+            echo "has_conflicts=true" >> $GITHUB_OUTPUT
+            echo "❌ Merge conflicts detected"
+          else
+            echo "has_conflicts=false" >> $GITHUB_OUTPUT
+            echo "✅ No merge conflicts detected"
+          fi
+
+      - name: Auto-merge pull request
+        if: steps.conflict-check.outputs.has_conflicts == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} \
+            --squash \
+            --delete-branch \
+            --subject "${{ github.event.pull_request.title }}" \
+            --body "${{ github.event.pull_request.body }}"
+
+      - name: Comment on conflicted PR
+        if: steps.conflict-check.outputs.has_conflicts == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Auto-merge failed**: This pull request has merge conflicts that need to be resolved manually before it can be merged.'
+            })
