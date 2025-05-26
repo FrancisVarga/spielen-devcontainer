@@ -25,8 +25,8 @@ services:
       - DISPLAY=${DISPLAY:-:0}
     stdin_open: true
     tty: true
-    # Keep container running
-    command: tail -f /dev/null
+    # Use the default start script from Dockerfile
+    # command: /start.sh  # This is already the default CMD in Dockerfile
 
 volumes:
   devenv-home:
