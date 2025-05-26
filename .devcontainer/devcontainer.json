@@ -1,0 +1,15 @@
+{
+    "name": "Development Container",
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "postCreateCommand": "bash setup-ssh-keys.sh",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "git.enableCommitSigning": true
+            }
+        }
+    }
+}
