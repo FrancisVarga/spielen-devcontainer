@@ -1,7 +1,7 @@
 {
   "packages": {
     ".": {
-      "release-type": "simple",
+      "release-type": "node",
       "package-name": "developer-environment",
       "changelog-sections": [
         {"type": "feat", "section": "Features"},
@@ -14,6 +14,13 @@
         {"type": "test", "section": "Tests"},
         {"type": "build", "section": "Build System"},
         {"type": "ci", "section": "Continuous Integration"}
+      ],
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        }
       ]
     }
   },

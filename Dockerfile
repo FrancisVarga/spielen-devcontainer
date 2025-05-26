@@ -3,6 +3,7 @@
 # Build arguments for performance optimization
 ARG BUILDKIT_INLINE_CACHE=1
 ARG BUILDKIT_CACHE_MOUNT_NS=spielen-devcontainer
+ARG VERSION=latest
 
 # Stage 1: Base system with minimal dependencies
 FROM alpine:3.19 AS base
@@ -121,10 +122,15 @@ RUN --mount=type=cache,target=/home/$USER/.npm,uid=1000,gid=1000 \
 # Stage 4: Final optimized image
 FROM node-env AS final
 
-# Add minimal metadata labels
+# Add minimal metadata labels with version from build arg
+ARG VERSION
 LABEL maintainer="Developer Environment" \
-      version="3.0-optimized" \
-      description="Lightweight development container optimized for size"
+      version="${VERSION}" \
+      description="Lightweight development container optimized for size" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.title="developer-environment" \
+      org.opencontainers.image.description="Lightweight development container with Python, Node.js, and essential dev tools" \
+      org.opencontainers.image.source="https://github.com/your-username/developer-environment"
 
 USER $USER
 WORKDIR $HOME

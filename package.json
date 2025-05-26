@@ -1,0 +1,43 @@
+{
+  "name": "developer-environment",
+  "version": "0.6.0",
+  "description": "A lightweight development container optimized for size with essential development tools",
+  "main": "index.js",
+  "scripts": {
+    "build": "docker build -t developer-environment:latest .",
+    "build:versioned": "docker build --build-arg VERSION=%npm_package_version% -t developer-environment:%npm_package_version% -t developer-environment:latest .",
+    "build:versioned:bash": "bash build-versioned.sh",
+    "test": "bash test-docker-simple.sh",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "clean": "docker system prune -f",
+    "version:show": "echo %npm_package_version%",
+    "docker:run": "docker run -d -p 2222:22 -p 3000:3000 developer-environment:%npm_package_version%",
+    "docker:logs": "docker logs $(docker ps -q --filter ancestor=developer-environment:%npm_package_version%)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/developer-environment.git"
+  },
+  "keywords": [
+    "docker",
+    "development",
+    "container",
+    "devcontainer",
+    "python",
+    "nodejs",
+    "alpine"
+  ],
+  "author": "Developer Environment Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/your-username/developer-environment/issues"
+  },
+  "homepage": "https://github.com/your-username/developer-environment#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
